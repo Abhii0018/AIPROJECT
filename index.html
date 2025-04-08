@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FundFlow - AI Proposal Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;500;700&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+        }
+
+        .background-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.8;
+        }
+
+        .form-container {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.35));
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(15px);
+            padding: 2rem;
+            border-radius: 18px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .input-label {
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-field:focus {
+            border-color: #6A5ACD;
+            outline: none;
+            box-shadow: 0 0 7px rgba(106, 90, 205, 0.5);
+            background-color: white;
+        }
+
+        .proposal-section {
+            border-left: 4px solid #6A5ACD;
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .proposal-section h3 {
+            color: #6A5ACD;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .copy-btn {
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 bg-gradient-to-r from-blue-700 to-purple-700">
+
+    <img src="assets1.jpg" alt="Background Image" class="background-img">
+    
+    <div class="max-w-4xl w-full form-container text-white animate__animated animate__fadeIn">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-center mb-6 p-5 bg-white bg-opacity-30 rounded-2xl shadow-lg border border-white uppercase tracking-wide">
+            🚀 FundFlow 💵
+            <div class="text-sm font-normal mt-2 normal-case">AI-Powered Funding Proposal Generator</div>
+        </h1>
+
+        <div class="grid gap-4">
+            <div>
+                <label class="input-label">Project Title:</label>
+                <input type="text" id="title" class="input-field text-gray-900" placeholder="e.g. AI-Powered Budget Tracker">
+            </div>
+
+            <div>
+                <label class="input-label">Purpose:</label>
+                <textarea id="purpose" class="input-field text-gray-900" placeholder="Describe your project's purpose and goals" rows="3"></textarea>
+            </div>
+
+            <div>
+                <label class="input-label">Funding Amount:</label>
+                <input type="number" id="funding" class="input-field text-gray-900" placeholder="Enter amount in USD" min="1">
+            </div>
+        </div>
+        
+        <button onclick="generateProposal()" class="bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-pink-600 hover:to-indigo-600 text-white font-bold px-4 py-3 rounded-lg w-full transition duration-300 mt-4 shadow-lg hover:shadow-xl">
+            Generate Proposal ✨
+        </button>
+        
+        <div class="mt-6 p-4 bg-white bg-opacity-95 rounded-lg border border-gray-200 text-gray-900">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-bold text-purple-800">Generated Proposal</h2>
+                <button id="copyBtn" onclick="copyToClipboard()" class="copy-btn bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded text-sm flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    Copy
+                </button>
+            </div>
+            <div id="proposal" class="proposal-content mt-2 text-gray-800"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        async function generateProposal() {
+            const title = document.getElementById('title').value.trim();
+            const purpose = document.getElementById('purpose').value.trim();
+            const funding = document.getElementById('funding').value.trim();
+
+            if (!title || !purpose || !funding) {
+                showAlert("Please fill all fields before generating a proposal.", "error");
+                return;
+            }
+
+            const proposalElement = document.getElementById('proposal');
+            proposalElement.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-8 animate-pulse">
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
+                    <div class="text-center">
+                        <p class="text-gray-600 font-medium">Generating your AI-powered proposal</p>
+                        <p class="text-gray-500 text-sm mt-1">This may take a few moments...</p>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const apiUrl = "http://localhost:5000/generate-proposal";
+                
+                const response = await fetch(apiUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ title, purpose, funding })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (!data.proposal) {
+                    throw new Error("The server didn't return a valid proposal. Please try again.");
+                }
+
+                // Keep values in the input fields after submission
+                document.getElementById('title').value = title;
+                document.getElementById('purpose').value = purpose;
+                document.getElementById('funding').value = funding;
+
+                // Format the proposal content
+                formatProposal(data);
+
+            } catch (error) {
+                console.error("Error:", error);
+                showAlert(error.message || "Failed to generate proposal. Please try again later.", "error");
+                proposalElement.innerHTML = `
+                    <div class="text-center py-8">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-red-600 font-medium mt-2">${error.message || "An error occurred"}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function formatProposal(data) {
+            const proposalElement = document.getElementById('proposal');
+            
+            // Convert plain text to formatted HTML
+            const sections = data.proposal.split('\n\n').filter(section => section.trim() !== '');
+            
+            let htmlContent = `
+                <div class="mb-6">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-2">${data.title}</h3>
+                    <div class="flex gap-4 text-sm mb-4">
+                        <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">Funding: $${data.funding}</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">AI-Generated</span>
+                    </div>
+                </div>
+            `;
+            
+            sections.forEach(section => {
+                if (section.includes(':')) {
+                    const [heading, ...content] = section.split(':');
+                    htmlContent += `
+                        <div class="proposal-section mb-6 animate__animated animate__fadeIn">
+                            <h3 class="text-xl font-semibold mb-2 text-gray-800">${heading.trim()}</h3>
+                            <div class="text-gray-700">${content.join(':').trim().replace(/\n/g, '<br>')}</div>
+                        </div>
+                    `;
+                } else if (section.trim().startsWith('- ') || section.trim().match(/^\d+\./)) {
+                    // Handle bullet points or numbered lists
+                    const items = section.split('\n').filter(item => item.trim() !== '');
+                    htmlContent += `
+                        <div class="mb-4 pl-4">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${items.map(item => `<li>${item.replace(/^- /, '').replace(/^\d+\./, '').trim()}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    htmlContent += `
+                        <p class="mb-4 text-gray-700">${section.trim()}</p>
+                    `;
+                }
+            });
+            
+            proposalElement.innerHTML = htmlContent;
+            document.getElementById('copyBtn').classList.remove('hidden');
+        }
+
+        function copyToClipboard() {
+            const proposalContent = document.getElementById('proposal').innerText;
+            navigator.clipboard.writeText(proposalContent)
+                .then(() => {
+                    const copyBtn = document.getElementById('copyBtn');
+                    copyBtn.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Copied!
+                    `;
+                    setTimeout(() => {
+                        copyBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Copy
+                        `;
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    showAlert("Failed to copy proposal to clipboard", "error");
+                });
+        }
+
+        function showAlert(message, type = "info") {
+            const colors = {
+                error: "red",
+                success: "green",
+                info: "blue"
+            };
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 px-4 py-2 rounded-md shadow-lg bg-${colors[type]}-100 border-l-4 border-${colors[type]}-500 text-${colors[type]}-700 animate__animated animate__fadeInRight`;
+            alertDiv.innerHTML = `
+                <p class="font-medium">${message}</p>
+            `;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.classList.remove('animate__fadeInRight');
+                alertDiv.classList.add('animate__fadeOutRight');
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
