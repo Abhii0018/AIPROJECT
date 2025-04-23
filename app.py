@@ -16,7 +16,7 @@ def generate_proposal():
         if not data:
             return jsonify({"error": "No JSON data received"}), 400
 
-        title = data.get('title', '').strip()
+        title = data.get('title', '').strip()   
         purpose = data.get('purpose', '').strip()
         funding = data.get('funding', '').strip()
 

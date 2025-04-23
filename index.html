@@ -131,7 +131,7 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
+    
     <script>
         async function generateProposal() {
             const title = document.getElementById('title').value.trim();
@@ -175,12 +175,12 @@
                     throw new Error("The server didn't return a valid proposal. Please try again.");
                 }
 
-                // Keep values in the input fields after submission
+                
                 document.getElementById('title').value = title;
                 document.getElementById('purpose').value = purpose;
                 document.getElementById('funding').value = funding;
 
-                // Format the proposal content
+            
                 formatProposal(data);
 
             } catch (error) {
@@ -200,7 +200,7 @@
         function formatProposal(data) {
             const proposalElement = document.getElementById('proposal');
             
-            // Convert plain text to formatted HTML
+            
             const sections = data.proposal.split('\n\n').filter(section => section.trim() !== '');
             
             let htmlContent = `
@@ -223,7 +223,7 @@
                         </div>
                     `;
                 } else if (section.trim().startsWith('- ') || section.trim().match(/^\d+\./)) {
-                    // Handle bullet points or numbered lists
+                    
                     const items = section.split('\n').filter(item => item.trim() !== '');
                     htmlContent += `
                         <div class="mb-4 pl-4">
